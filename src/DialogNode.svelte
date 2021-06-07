@@ -2,17 +2,19 @@
   export let language: string;
   export let gender: string;
   export let scene: Scenario;
-  export let id: number;
-  export let dialogNode: DialogNode;
+  export let nodeId: number;
+  let dialogNode: DialogNode;
   let showChildNodes = false;
 
   const t = (text): string => {
     return text?.[language]?.[gender] || text?.[language]?.m || text?.[language] || text.fr;
   }
 
-  const normalizedId = `${'0'.repeat(5-String(id).length)}${id}`;
+  const normalizedId = `${'0'.repeat(5-String(nodeId).length)}${nodeId}`;
 
   function toggleShowChildNodes() { showChildNodes = !showChildNodes }
+
+  $: dialogNode = scene.dialogNodes[nodeId];
 </script>
 
 <li>
@@ -24,7 +26,7 @@
   <ul class:hidden={!showChildNodes}>
     {#each dialogNode.nextNodes as nodeId, i (i)}
       {#if !scene.dialogNodes[nodeId].isTerminal}
-        <svelte:self id={nodeId} {scene} dialogNode={scene.dialogNodes[nodeId]} {gender} {language}/>
+        <svelte:self {nodeId} {scene} {gender} {language}/>
       {/if}
     {/each}
   </ul>

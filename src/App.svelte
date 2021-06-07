@@ -5,10 +5,30 @@
   export let language: string;
   let files; // always a FileList of max. 1 element
   let scene: Scenario;
+  let rootDialogNodeIds = [];
 
   async function loadFile(): Promise<void> {
     const text = await files[0].text();
-    scene = JSON.parse(text);
+    const parsedScene: Scenario = JSON.parse(text);
+
+    /* Browse all nodes and infer incoming vertices */
+    Object.entries(parsedScene.dialogNodes).forEach(([id, dialogNode]) => {
+      dialogNode.nextNodes.forEach((nextNodeId) => {
+        parsedScene.dialogNodes[nextNodeId].incomingNodes = [...(parsedScene.dialogNodes[nextNodeId].incomingNodes || []), id];
+      });
+    });
+    scene = parsedScene;
+  }
+
+  $: if (scene) {
+    rootDialogNodeIds = Object.keys(scene.dialogNodes).reduce((acc, nodeId) => {
+      const dialogNode = scene.dialogNodes[nodeId];
+      if (!dialogNode.incomingNodes || dialogNode.isTerminal || dialogNode.incomingNodes.length > 1) {
+        return [ ...acc, nodeId];
+      } else {
+        return acc;
+      }
+    }, []);
   }
 </script>
 
@@ -25,7 +45,9 @@
     <h3>Partie {scene.metadata.part}: Chapitre {scene.metadata.chapter}</h3>
 
     <ul>
-      <DialogNode {scene} id={1} dialogNode={scene.dialogNodes["1"]} {gender} {language}/>
+      {#each rootDialogNodeIds as nodeId, i (i)}
+        <DialogNode {scene} {nodeId} {gender} {language}/>
+      {/each}
     </ul>
   {:else}
     <p>Veuillez charger un fichier de scénario JSON.</p>
