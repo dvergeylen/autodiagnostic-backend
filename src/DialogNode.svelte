@@ -1,11 +1,10 @@
 <script lang="ts">
   import DialogNodeSettings from './DialogNodeSettings.svelte';
+  import { scene } from './stores/scene';
 
   export let language: string;
   export let gender: string;
-  export let scene: Scenario;
-  export let nodeId: number;
-  let dialogNode: DialogNode;
+  export let dialogNode: DialogNode;
   let showChildNodes: boolean = false;
   let multipleIncomingNodes: boolean = false;
   let readonly: boolean = false;
@@ -15,29 +14,28 @@
     return text?.[language]?.[gender] || text?.[language]?.m || text?.[language] || text.fr;
   }
 
-  const normalizedId: string = `${'0'.repeat(5-String(nodeId).length)}${nodeId}`;
+  const normalizedId: string = `${'0'.repeat(5-String(dialogNode.id).length)}${dialogNode.id}`;
 
   function toggleShowChildNodes() { showChildNodes = !showChildNodes }
   function toggleShowSettings() { showSettings = !showSettings }
 
-  $: dialogNode = scene.dialogNodes[nodeId];
   $: multipleIncomingNodes = (dialogNode?.incomingNodes?.length > 1 ) || false;
-  $: readonly = dialogNode.isTerminal || dialogNode?.incomingNodes?.length > 1;
+  $: readonly = dialogNode?.incomingNodes?.length > 1;
 </script>
 
 <li id="{normalizedId}">
   <div class="dialog-node" class:is-player={dialogNode.character === "Player"}>
     <p>
       {#if !readonly}
-        <span on:click={toggleShowSettings} class:is-hidden={showChildNodes}>▷</span>
-        <span on:click={toggleShowSettings} class:is-hidden={!showChildNodes}>▽</span>
+        <span on:click={toggleShowChildNodes} class:is-hidden={showChildNodes}>▷</span>
+        <span on:click={toggleShowChildNodes} class:is-hidden={!showChildNodes}>▽</span>
       {:else}
         <span title="Noeud terminal">¤</span>
       {/if}
-      <strong on:click={toggleShowSettings}>{dialogNode.character}</strong>:
-      <span  on:click={toggleShowSettings} class:italic={readonly}>{t(dialogNode.text)}</span>
+      <strong on:click={toggleShowChildNodes}>{dialogNode.character}</strong>:
+      <span  on:click={toggleShowChildNodes} class="italic">"{t(dialogNode.text)}"</span>
 
-      <span on:click={() => showSettings = !showSettings}>⚙️</span>
+      <span on:click={toggleShowSettings}>⚙️</span>
       ⊞
 
       [<span class:is-hidden={!multipleIncomingNodes} class="is-primary"
@@ -53,13 +51,13 @@
     </p>
 
     {#if showSettings}
-      <DialogNodeSettings />
+      <DialogNodeSettings bind:dialogNode={dialogNode}/>
     {/if}
   </div>
 
   <ul class:is-hidden={!showChildNodes}>
-    {#each dialogNode.nextNodes as nodeId, i (i)}
-      <svelte:self {nodeId} {scene} {gender} {language}/>
+    {#each dialogNode.nextNodes as childNodeId, i (i)}
+      <svelte:self {gender} {language} bind:dialogNode={$scene.dialogNodes[childNodeId]}/>
     {/each}
   </ul>
 </li>

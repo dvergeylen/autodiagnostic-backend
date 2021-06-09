@@ -1,27 +1,20 @@
 /// <reference types="svelte" />
 
-interface Language {
-  "fr",
-  "en",
-}
-
-interface Gender {
-  "m",
-  "f",
-}
-
 interface DialogNode {
+  id: number,
   text: {
-    [lang: Language]: string | {
-      [gender: Gender] : string,
+    fr?: string | {
+      m: string,
+      f: string,
     },
+    en?: string,
   },
   nextNodes: Array<string>,
   incomingNodes?: Array<string>,
   character: "Player" | "NPC1",
   attribution?: {
-    bricoleur?: number,
     leader?: number,
+    bricoleur?: number,
     coequipier?: number,
     planificateur?: number,
     idealiste?: number,
@@ -29,7 +22,6 @@ interface DialogNode {
     audacieux?: number,
     explorateur?: number,
   }
-  isTerminal: boolean,
   imagePath?: string,
 }
 
