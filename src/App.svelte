@@ -1,11 +1,13 @@
 <script lang="ts">
   import DialogNode from "./DialogNode.svelte";
+  import { scene } from './stores/scene';
 
   export let gender: string;
   export let language: string;
   let files; // always a FileList of max. 1 element
-  let scene: Scenario;
-  let rootDialogNodeIds = [];
+  let orphanDialogNodeIds: Array<number> = [];
+  let multipleIncomingNodesIds: Array<number> = [];
+
 
   async function loadFile(): Promise<void> {
     const text = await files[0].text();
@@ -17,19 +19,16 @@
         parsedScene.dialogNodes[nextNodeId].incomingNodes = [...(parsedScene.dialogNodes[nextNodeId].incomingNodes || []), id];
       });
     });
-    scene = parsedScene;
+    scene.set(parsedScene);
   }
 
-  $: if (scene) {
-    rootDialogNodeIds = Object.keys(scene.dialogNodes).reduce((acc, nodeId) => {
-      const dialogNode = scene.dialogNodes[nodeId];
-      if (!dialogNode.incomingNodes || dialogNode.isTerminal || dialogNode.incomingNodes.length > 1) {
-        return [ ...acc, nodeId];
-      } else {
-        return acc;
-      }
-    }, []);
-  }
+
+  $: orphanDialogNodeIds = Object.keys($scene.dialogNodes).reduce((acc, dialogNodeId) => (
+    !$scene.dialogNodes[dialogNodeId].incomingNodes && dialogNodeId !== "1" ? [ ...acc, dialogNodeId] : acc
+  ), []);
+  $: multipleIncomingNodesIds = Object.keys($scene.dialogNodes).reduce((acc, dialogNodeId) => (
+    $scene.dialogNodes[dialogNodeId]?.incomingNodes?.length > 1 ? [ ...acc, dialogNodeId] : acc
+  ), []);
 </script>
 
 <main>
@@ -41,14 +40,31 @@
     accept="application/json"
     type="file" id="scenarioFile">
 
-  {#if scene}
-    <h3>Partie {scene.metadata.part}: Chapitre {scene.metadata.chapter}</h3>
+  {#if Object.keys($scene.dialogNodes).length > 0}
+    <h3>Partie {$scene.metadata.part}: Chapitre {$scene.metadata.chapter}</h3>
 
+    <h4>Noeud Racine:</h4>
     <ul>
-      {#each rootDialogNodeIds as nodeId, i (i)}
-        <DialogNode {scene} {nodeId} {gender} {language}/>
-      {/each}
+      <DialogNode {gender} {language} bind:dialogNode={$scene.dialogNodes["1"]}/>
     </ul>
+
+    {#if multipleIncomingNodesIds.length > 0}
+      <h4 title="Noeuds liés par plusieurs répliques">Noeud(s) à incidences multiples:</h4>
+      <ul>
+        {#each multipleIncomingNodesIds as childNodeId, i (i)}
+          <DialogNode {gender} {language} bind:dialogNode={$scene.dialogNodes[childNodeId]}/>
+        {/each}
+      </ul>
+    {/if}
+
+    {#if orphanDialogNodeIds.length > 0}
+      <h4 title="Noeuds n'étant la réplique d'aucun autre (et n'étant pas le noeud racine)">Noeud(s) orphelin(s):</h4>
+      <ul>
+        {#each orphanDialogNodeIds as childNodeId, i (i)}
+          <DialogNode {gender} {language} bind:dialogNode={$scene.dialogNodes[childNodeId]}/>
+        {/each}
+      </ul>
+    {/if}
   {:else}
     <p>Veuillez charger un fichier de scénario JSON.</p>
   {/if}
@@ -67,6 +83,9 @@
     text-transform: uppercase;
     font-size: 4em;
     font-weight: 100;
+  }
+  h4 {
+    text-align: left;
   }
 
   @media (min-width: 640px) {
