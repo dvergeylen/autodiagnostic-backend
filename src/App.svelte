@@ -5,30 +5,50 @@
   export let gender: string;
   export let language: string;
   let files; // always a FileList of max. 1 element
-  let orphanDialogNodeIds: Array<number> = [];
-  let multipleIncomingNodesIds: Array<number> = [];
+  let orphanDialogNodesIds: Array<string> = [];
+  let multipleIncomingNodesIds: Array<string> = [];
 
+  /* Browse all nodes and infer incoming vertices */
+  function inferIncomingVertices() {
+    // Reset
+    Object.entries($scene.dialogNodes).forEach(([id, dialogNode]) => {
+      dialogNode.incomingNodes = [];
+    });
+
+    // Recompute
+    Object.entries($scene.dialogNodes).forEach(([id, dialogNode]) => {
+      console.log(`Checking node: ${id}`)
+      dialogNode.nextNodes.forEach((nextNodeId) => {
+        $scene.dialogNodes[nextNodeId].incomingNodes = [...($scene.dialogNodes[nextNodeId].incomingNodes || []), id];
+      });
+    });
+  }
+  function findOrphanDialogNodesIds(): Array<string> {
+    return Object.keys($scene.dialogNodes).reduce((acc, dialogNodeId) => (
+      $scene.dialogNodes[dialogNodeId]?.incomingNodes?.length === 0
+      && dialogNodeId !== "1" ? [ ...acc, dialogNodeId] : acc
+    ), []);
+  }
+
+  function findMultipleIncomingNodesIds(): Array<string> {
+    return Object.keys($scene.dialogNodes).reduce((acc, dialogNodeId) => (
+      $scene.dialogNodes[dialogNodeId]?.incomingNodes?.length > 1 ? [ ...acc, dialogNodeId] : acc
+    ), []);
+  }
+
+  function updateNodeLists() {
+    inferIncomingVertices();
+    orphanDialogNodesIds = findOrphanDialogNodesIds();
+    multipleIncomingNodesIds = findMultipleIncomingNodesIds();
+  }
 
   async function loadFile(): Promise<void> {
     const text = await files[0].text();
-    const parsedScene: Scenario = JSON.parse(text);
+    scene.set(JSON.parse(text));
 
-    /* Browse all nodes and infer incoming vertices */
-    Object.entries(parsedScene.dialogNodes).forEach(([id, dialogNode]) => {
-      dialogNode.nextNodes.forEach((nextNodeId) => {
-        parsedScene.dialogNodes[nextNodeId].incomingNodes = [...(parsedScene.dialogNodes[nextNodeId].incomingNodes || []), id];
-      });
-    });
-    scene.set(parsedScene);
+    updateNodeLists();
   }
 
-
-  $: orphanDialogNodeIds = Object.keys($scene.dialogNodes).reduce((acc, dialogNodeId) => (
-    !$scene.dialogNodes[dialogNodeId].incomingNodes && dialogNodeId !== "1" ? [ ...acc, dialogNodeId] : acc
-  ), []);
-  $: multipleIncomingNodesIds = Object.keys($scene.dialogNodes).reduce((acc, dialogNodeId) => (
-    $scene.dialogNodes[dialogNodeId]?.incomingNodes?.length > 1 ? [ ...acc, dialogNodeId] : acc
-  ), []);
 </script>
 
 <main>
@@ -45,23 +65,29 @@
 
     <h4>Noeud Racine:</h4>
     <ul>
-      <DialogNode {gender} {language} bind:dialogNode={$scene.dialogNodes["1"]}/>
+      <DialogNode {gender} {language}
+      bind:dialogNode={$scene.dialogNodes["1"]}
+      on:updateNodeLists={updateNodeLists}/>
     </ul>
 
     {#if multipleIncomingNodesIds.length > 0}
       <h4 title="Noeuds liés par plusieurs répliques">Noeud(s) à incidences multiples:</h4>
       <ul>
         {#each multipleIncomingNodesIds as childNodeId, i (i)}
-          <DialogNode {gender} {language} bind:dialogNode={$scene.dialogNodes[childNodeId]}/>
+          <DialogNode {gender} {language}
+          bind:dialogNode={$scene.dialogNodes[childNodeId]}
+          on:updateNodeLists={updateNodeLists}/>
         {/each}
       </ul>
     {/if}
 
-    {#if orphanDialogNodeIds.length > 0}
+    {#if orphanDialogNodesIds.length > 0}
       <h4 title="Noeuds n'étant la réplique d'aucun autre (et n'étant pas le noeud racine)">Noeud(s) orphelin(s):</h4>
       <ul>
-        {#each orphanDialogNodeIds as childNodeId, i (i)}
-          <DialogNode {gender} {language} bind:dialogNode={$scene.dialogNodes[childNodeId]}/>
+        {#each orphanDialogNodesIds as childNodeId, i (i)}
+          <DialogNode {gender} {language} parentNodeId={'1'}
+          bind:dialogNode={$scene.dialogNodes[childNodeId]}
+          on:updateNodeLists={updateNodeLists}/>
         {/each}
       </ul>
     {/if}

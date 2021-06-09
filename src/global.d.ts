@@ -1,7 +1,7 @@
 /// <reference types="svelte" />
 
 interface DialogNode {
-  id: number,
+  id: string,
   text: {
     fr?: string | {
       m: string,

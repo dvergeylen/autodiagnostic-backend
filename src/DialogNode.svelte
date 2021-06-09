@@ -1,10 +1,12 @@
 <script lang="ts">
+  import { createEventDispatcher } from 'svelte';
   import DialogNodeSettings from './DialogNodeSettings.svelte';
   import { scene } from './stores/scene';
 
   export let language: string;
   export let gender: string;
   export let dialogNode: DialogNode;
+  export let parentNodeId: string = '1';
   let showChildNodes: boolean = false;
   let multipleIncomingNodes: boolean = false;
   let readonly: boolean = false;
@@ -14,10 +16,26 @@
     return text?.[language]?.[gender] || text?.[language]?.m || text?.[language] || text.fr;
   }
 
+	const dispatch = createEventDispatcher();
+
   const normalizedId: string = `${'0'.repeat(5-String(dialogNode.id).length)}${dialogNode.id}`;
 
   function toggleShowChildNodes() { showChildNodes = !showChildNodes }
   function toggleShowSettings() { showSettings = !showSettings }
+
+  function removeAffiliation() {
+    $scene.dialogNodes[parentNodeId].nextNodes = $scene.dialogNodes[parentNodeId].nextNodes.filter((id) => id !== dialogNode.id);
+  }
+
+  function removeNode() {
+    // Remove references
+    Object.keys($scene.dialogNodes).forEach((dialogNodeId) => {
+      $scene.dialogNodes[dialogNodeId].nextNodes = $scene.dialogNodes[dialogNodeId].nextNodes.filter((id) => id !== dialogNode.id);
+    });
+
+    delete $scene.dialogNodes[dialogNode.id];
+    dispatch('updateNodeLists', {});
+  }
 
   $: multipleIncomingNodes = (dialogNode?.incomingNodes?.length > 1 ) || false;
   $: readonly = dialogNode?.incomingNodes?.length > 1;
@@ -35,8 +53,7 @@
       <strong on:click={toggleShowChildNodes}>{dialogNode.character}</strong>:
       <span  on:click={toggleShowChildNodes} class="italic">"{t(dialogNode.text)}"</span>
 
-      <span on:click={toggleShowSettings}>⚙️</span>
-      ⊞
+      <span on:click={toggleShowSettings}>✏️</span>
 
       [<span class:is-hidden={!multipleIncomingNodes} class="is-primary"
             title="{dialogNode.incomingNodes?.length || 0} répliques mène(nt) à ce noeud">
@@ -47,7 +64,13 @@
         on:click={toggleShowChildNodes}>
         💬 {dialogNode.nextNodes.length}
         </span>
+        ⊞
       ]
+
+      {#if dialogNode.id !== '1'}
+        <span class="is-float-right" on:click={removeNode}>destroy</span>
+        <span class="is-float-right" on:click={removeAffiliation}>delete</span>
+      {/if}
     </p>
 
     {#if showSettings}
@@ -57,7 +80,9 @@
 
   <ul class:is-hidden={!showChildNodes}>
     {#each dialogNode.nextNodes as childNodeId, i (i)}
-      <svelte:self {gender} {language} bind:dialogNode={$scene.dialogNodes[childNodeId]}/>
+      <svelte:self {gender} {language} parentNodeId={dialogNode.id}
+      bind:dialogNode={$scene.dialogNodes[childNodeId]}
+      on:updateNodeLists/>
     {/each}
   </ul>
 </li>
@@ -90,5 +115,8 @@
   }
   .is-player {
     background-color: #f2f9ff;
+  }
+  .is-float-right {
+    float:right;
   }
 </style>
