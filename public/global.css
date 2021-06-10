@@ -67,6 +67,13 @@ ul {
   list-style: none;
 }
 
+svg {
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+  cursor: pointer;
+}
+
 .is-primary {
   color: rgb(0, 174, 255);
 }

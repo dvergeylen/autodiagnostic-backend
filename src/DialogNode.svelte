@@ -45,27 +45,33 @@
   <div class="dialog-node" class:is-player={dialogNode.character === "Player"}>
     <p>
       {#if !readonly}
-        <span on:click={toggleShowChildNodes} class:is-hidden={showChildNodes}>▷</span>
-        <span on:click={toggleShowChildNodes} class:is-hidden={!showChildNodes}>▽</span>
+
+        <svg on:click={toggleShowChildNodes} class:is-hidden={showChildNodes}>
+          <use href='assets/sprite_icons.svg#angle-double-right' />
+        </svg>
+        <svg on:click={toggleShowChildNodes} class:is-hidden={!showChildNodes}>
+          <use href='assets/sprite_icons.svg#angle-double-down' />
+        </svg>
+        <span class="is-primary"
+          title="Ce noeud mène à {dialogNode.nextNodes.length} réplique(s)"
+          on:click={toggleShowChildNodes}>
+          ({dialogNode.nextNodes.length})
+          </span>
       {:else}
         <span title="Noeud terminal">¤</span>
       {/if}
       <strong on:click={toggleShowChildNodes}>{dialogNode.character}</strong>:
       <span  on:click={toggleShowChildNodes} class="italic">"{t(dialogNode.text)}"</span>
 
-      <span on:click={toggleShowSettings}>✏️</span>
+      <svg on:click={toggleShowSettings}>
+        <use href='assets/sprite_icons.svg#pencil-2' />
+      </svg>
 
-      [<span class:is-hidden={!multipleIncomingNodes} class="is-primary"
-            title="{dialogNode.incomingNodes?.length || 0} répliques mène(nt) à ce noeud">
-            ⇶ {dialogNode.incomingNodes?.length || 0} - 
-        </span>
-        <span class="is-primary"
-        title="Ce noeud mène à {dialogNode.nextNodes.length} réplique(s)"
-        on:click={toggleShowChildNodes}>
-        💬 {dialogNode.nextNodes.length}
-        </span>
-        ⊞
-      ]
+      <span class:is-hidden={!multipleIncomingNodes} class="is-primary"
+        title="{dialogNode.incomingNodes?.length || 0} répliques mène(nt) à ce noeud">
+        ⇶ {dialogNode.incomingNodes?.length || 0} - 
+      </span>
+      ⊞
 
       {#if dialogNode.id !== '1'}
         <span class="is-float-right" on:click={removeNode}>destroy</span>
