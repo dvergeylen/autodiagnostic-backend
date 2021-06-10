@@ -3,7 +3,7 @@
 interface DialogNode {
   id: string,
   text: {
-    fr?: string | {
+    fr: string | {
       m: string,
       f: string,
     },

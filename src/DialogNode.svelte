@@ -1,6 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
   import DialogNodeSettings from './DialogNodeSettings.svelte';
+  import NewDialogNode from './NewDialogNode.svelte';
   import { scene } from './stores/scene';
 
   export let language: string;
@@ -11,6 +12,7 @@
   let multipleIncomingNodes: boolean = false;
   let readonly: boolean = false;
   let showSettings: boolean = false;
+  let showNewDialogNode: boolean = false;
 
   const t = (text): string => {
     return text?.[language]?.[gender] || text?.[language]?.m || text?.[language] || text.fr;
@@ -22,6 +24,7 @@
 
   function toggleShowChildNodes() { showChildNodes = !showChildNodes }
   function toggleShowSettings() { showSettings = !showSettings }
+  function toggleShowNewDialogNode() { showNewDialogNode = !showNewDialogNode}
 
   function removeAffiliation() {
     $scene.dialogNodes[parentNodeId].nextNodes = $scene.dialogNodes[parentNodeId].nextNodes.filter((id) => id !== dialogNode.id);
@@ -97,6 +100,10 @@
 
     {#if showSettings}
       <DialogNodeSettings bind:dialogNode={dialogNode}/>
+    {/if}
+
+    {#if showNewDialogNode}
+      <NewDialogNode />
     {/if}
   </div>
 
