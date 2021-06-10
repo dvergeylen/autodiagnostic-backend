@@ -88,9 +88,6 @@
 </li>
 
 <style>
-  ul {
-    list-style: none;
-  }
   div.dialog-node {
     text-align: left;
     border: 1px black solid;
@@ -104,19 +101,7 @@
   div.dialog-node p {
     margin: 0;
   }
-  .is-hidden {
-    display: none;
-  }
-  .italic {
-    font-style: italic;
-  }
-  .is-primary {
-    color: rgb(0, 174, 255);
-  }
   .is-player {
     background-color: #f2f9ff;
-  }
-  .is-float-right {
-    float:right;
   }
 </style>

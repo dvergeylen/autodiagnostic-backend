@@ -17,7 +17,6 @@
 
     // Recompute
     Object.entries($scene.dialogNodes).forEach(([id, dialogNode]) => {
-      console.log(`Checking node: ${id}`)
       dialogNode.nextNodes.forEach((nextNodeId) => {
         $scene.dialogNodes[nextNodeId].incomingNodes = [...($scene.dialogNodes[nextNodeId].incomingNodes || []), id];
       });
@@ -118,8 +117,5 @@
     main {
       max-width: none;
     }
-  }
-  ul {
-    list-style: none;
   }
 </style>

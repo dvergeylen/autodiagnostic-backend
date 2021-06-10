@@ -89,15 +89,6 @@
     padding-left: 0.5em;
     padding-right: 0.5em;
   }
-  .is-small {
-    font-size: 0.8em;
-  }
-  .is-italic {
-    font-style: italic;
-  }
-  .mb-3 {
-    margin-bottom: 1em;
-  }
   div.details {
     margin-left: 1em;
   }
