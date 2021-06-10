@@ -63,7 +63,7 @@ button:focus {
 }
 
 ul {
-  padding-left: 0.75em;
+  padding-left: 1em;
   list-style: none;
 }
 
@@ -72,6 +72,7 @@ svg {
   height: 1em;
   vertical-align: middle;
   cursor: pointer;
+  fill: #6c6c6c;
 }
 
 .is-primary {
@@ -94,4 +95,7 @@ svg {
 }
 .mb-3 {
   margin-bottom: 1em;
+}
+.ml-1 {
+  margin-left: 0.35em;
 }

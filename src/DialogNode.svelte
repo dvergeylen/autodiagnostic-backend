@@ -64,18 +64,33 @@
       <span  on:click={toggleShowChildNodes} class="italic">"{t(dialogNode.text)}"</span>
 
       <svg on:click={toggleShowSettings}>
-        <use href='assets/sprite_icons.svg#pencil-2' />
+        <use href='assets/sprite_icons.svg#edit' />
       </svg>
 
       <span class:is-hidden={!multipleIncomingNodes} class="is-primary"
         title="{dialogNode.incomingNodes?.length || 0} répliques mène(nt) à ce noeud">
         ⇶ {dialogNode.incomingNodes?.length || 0} - 
       </span>
-      ⊞
 
-      {#if dialogNode.id !== '1'}
-        <span class="is-float-right" on:click={removeNode}>destroy</span>
-        <span class="is-float-right" on:click={removeAffiliation}>delete</span>
+      <span title="Ajouter une sous-réplique">
+        <svg on:click={toggleShowNewDialogNode}>
+          <use href='assets/sprite_icons.svg#plus-square' />
+        </svg>
+      </span>
+
+      {#if dialogNode.id !== "1"}
+        <span title="Supprimer le noeud (irréversible)">
+          <svg on:click={removeNode} class="is-float-right ml-1">
+            <use href='assets/sprite_icons.svg#times-circle-solid' />
+          </svg>
+        </span>
+      {/if}
+      {#if dialogNode.incomingNodes.length > 0}
+        <span title="Supprimer la filiation (le noeud ne sera pas supprimé, seul son lien avec son noeud parent)">
+          <svg on:click={removeAffiliation} class="is-float-right">
+            <use href='assets/sprite_icons.svg#times-circle-regular' />
+          </svg>
+        </span>
       {/if}
     </p>
 
