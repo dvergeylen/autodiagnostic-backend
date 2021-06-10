@@ -25,6 +25,7 @@
 
   function removeAffiliation() {
     $scene.dialogNodes[parentNodeId].nextNodes = $scene.dialogNodes[parentNodeId].nextNodes.filter((id) => id !== dialogNode.id);
+    dispatch('updateNodeLists', {});
   }
 
   function removeNode() {
