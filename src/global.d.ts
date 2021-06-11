@@ -1,5 +1,10 @@
 /// <reference types="svelte" />
 
+interface DialogNodeOption {
+  id: string,
+  text: string,
+}
+
 interface DialogNode {
   id: string,
   text: {

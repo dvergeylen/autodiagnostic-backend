@@ -18,7 +18,7 @@
     return text?.[language]?.[gender] || text?.[language]?.m || text?.[language] || text.fr;
   }
 
-	const dispatch = createEventDispatcher();
+  const dispatch = createEventDispatcher();
 
   const normalizedId: string = `${'0'.repeat(5-String(dialogNode.id).length)}${dialogNode.id}`;
 
@@ -103,7 +103,7 @@
     {/if}
 
     {#if showNewDialogNode}
-      <NewDialogNode />
+      <NewDialogNode parentDialogNode={dialogNode} on:updateNodeLists/>
     {/if}
   </div>
 

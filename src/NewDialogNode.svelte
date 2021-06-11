@@ -1,6 +1,10 @@
 <script lang="ts">
+  import { createEventDispatcher } from 'svelte';
   import { dialogNodeList } from './stores/scene';
   import DialogNodeSettings from './DialogNodeSettings.svelte';
+  import { scene } from './stores/scene';
+
+  export let parentDialogNode: DialogNode;
   let selectedDialogNodeId: string;
   let newDialogNode: DialogNode = {
     "id": "",
@@ -22,13 +26,35 @@
     }
   };
 
+  const dispatch = createEventDispatcher();
+
   function addExistingDialogNode() {
-    console.log('TODO: add Existing DialogNode');
+    if (!parentDialogNode.nextNodes.includes(selectedDialogNodeId)) {
+      parentDialogNode.nextNodes = [...parentDialogNode.nextNodes, selectedDialogNodeId];
+    }
+    dispatch('updateNodeLists', {});
   }
   function addNewDialogNode() {
-    console.log('TODO: add New DialogNode');
+    // Computing first available ID
+    const keys: Array<string> = Object.keys($scene.dialogNodes);
+    let newId = keys.length + 1;
+    while(keys.includes(String(newId))) {
+      newId + 1;
+    }
+    newDialogNode.id = String(newId);
+
+    // Updating parent nextNodes
+    $scene.dialogNodes[String(newId)] = newDialogNode;
+    parentDialogNode.nextNodes = [...parentDialogNode.nextNodes, String(newId)];
+    dispatch('updateNodeLists', {});
   }
 </script>
+
+<h5>Nouvelle réplique</h5>
+ <DialogNodeSettings bind:dialogNode={newDialogNode}/>
+
+<button on:click={addNewDialogNode}>Ajouter</button>
+
 
 <h5>Réplique existante</h5>
 
@@ -41,7 +67,3 @@
 </select>
 
 <button on:click={addExistingDialogNode}>Ajouter</button>
-
-<h5>Nouvelle réplique</h5>
- <DialogNodeSettings bind:dialogNode={newDialogNode}/>
-<button on:click={addNewDialogNode}>Ajouter</button>
