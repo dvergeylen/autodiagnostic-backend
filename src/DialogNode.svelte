@@ -14,7 +14,7 @@
   let showSettings: boolean = false;
   let showNewDialogNode: boolean = false;
 
-  const t = (text): string => {
+  const t = (text: DialogNode["text"]): string => {
     return text?.[language]?.[gender] || text?.[language]?.m || text?.[language] || text.fr;
   }
 

@@ -4,15 +4,15 @@
 
   export let gender: string;
   export let language: string;
-  let files; // always a FileList of max. 1 element
-  let filename;
+  let files: FileList; // always a FileList of max. 1 element
+  let filename: string;
   let orphanDialogNodesIds: Array<string> = [];
   let multipleIncomingNodesIds: Array<string> = [];
 
   /* Browse all nodes and infer incoming vertices */
   function inferIncomingVertices(): void {
     // Reset
-    Object.entries($scene.dialogNodes).forEach(([id, dialogNode]) => {
+    Object.entries($scene.dialogNodes).forEach(([_, dialogNode]) => {
       dialogNode.incomingNodes = [];
     });
 
