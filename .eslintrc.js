@@ -29,8 +29,13 @@ module.exports = {
     'svelte3/ignore-styles': () => true
   },
   plugins: ['svelte3', '@typescript-eslint'],
-  ignorePatterns: ['node_modules'],
+  ignorePatterns: ['node_modules', '.eslintrc.js'],
   rules: {
-    allowAny: true,
+    "@typescript-eslint/restrict-template-expressions": [
+      'error',
+      {
+        allowAny: true,
+      },
+    ]
   }
 }
