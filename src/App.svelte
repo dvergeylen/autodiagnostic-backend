@@ -5,11 +5,12 @@
   export let gender: string;
   export let language: string;
   let files; // always a FileList of max. 1 element
+  let filename;
   let orphanDialogNodesIds: Array<string> = [];
   let multipleIncomingNodesIds: Array<string> = [];
 
   /* Browse all nodes and infer incoming vertices */
-  function inferIncomingVertices() {
+  function inferIncomingVertices(): void {
     // Reset
     Object.entries($scene.dialogNodes).forEach(([id, dialogNode]) => {
       dialogNode.incomingNodes = [];
@@ -35,7 +36,7 @@
     ), []);
   }
 
-  function updateNodeLists() {
+  function updateNodeLists(): void {
     inferIncomingVertices();
     orphanDialogNodesIds = findOrphanDialogNodesIds();
     multipleIncomingNodesIds = findMultipleIncomingNodesIds();
@@ -43,9 +44,26 @@
 
   async function loadFile(): Promise<void> {
     const text = await files[0].text();
+    filename = files[0].name;
     scene.set(JSON.parse(text));
 
     updateNodeLists();
+  }
+
+  function downloadFile(): void {
+    const link = document.createElement('a');
+    const blob = new Blob([JSON.stringify($scene, null, 2)], {type : 'application/json'});
+    const url = URL.createObjectURL(blob);
+    link.href = url;
+    link.download = filename;
+
+    // Download
+    document.body.appendChild(link);
+    link.click();
+
+    // Cleanup
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   }
 
 </script>
@@ -60,6 +78,8 @@
     type="file" id="scenarioFile">
 
   {#if Object.keys($scene.dialogNodes).length > 0}
+
+    <a id="downloadLink" on:click={downloadFile}>Exporter Scénario</a>
     <h3>Partie {$scene.metadata.part}: Chapitre {$scene.metadata.chapter}</h3>
 
     <h4>Noeud Racine:</h4>
