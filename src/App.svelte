@@ -1,7 +1,3 @@
-<svelte:head>
-  <base href="/autodiagnotic">
-</svelte:head>
-
 <script lang="ts">
   import DialogNode from "./DialogNode.svelte";
   import { scene } from './stores/scene';
