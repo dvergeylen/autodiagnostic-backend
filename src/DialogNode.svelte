@@ -22,9 +22,33 @@
 
   const normalizedId: string = `${'0'.repeat(5-String(dialogNode.id).length)}${dialogNode.id}`;
 
-  function toggleShowChildNodes() { showChildNodes = !showChildNodes }
-  function toggleShowSettings() { showSettings = !showSettings }
-  function toggleShowNewDialogNode() { showNewDialogNode = !showNewDialogNode}
+  function toggleShowChildNodes() {
+    showChildNodes = !showChildNodes;
+
+    // Hide settings if uncollapsed
+    if (!showChildNodes) {
+      showSettings = showChildNodes;
+      showNewDialogNode = showChildNodes;
+    }
+  }
+  function toggleShowSettingsAndChildNodes() {
+    showSettings = !showSettings;
+    showChildNodes = showSettings;
+
+    // Hide new DialogNode if displaying settings
+    if (showSettings) {
+      showNewDialogNode = false;
+    }
+  }
+  function toggleShowNewDialogNode() {
+    showNewDialogNode = !showNewDialogNode;
+    showChildNodes = showNewDialogNode;
+
+    // Hide settings if displaying new DialogNode
+    if (showNewDialogNode) {
+      showSettings = false;
+    }
+  }
 
   function removeAffiliation() {
     $scene.dialogNodes[parentNodeId].nextNodes = $scene.dialogNodes[parentNodeId].nextNodes.filter((id) => id !== dialogNode.id);
@@ -49,7 +73,6 @@
   <div class="dialog-node" class:is-player={dialogNode.character === "Player"}>
     <p>
       {#if !readonly}
-
         <svg on:click={toggleShowChildNodes} class:is-hidden={showChildNodes}>
           <use href='assets/sprite_icons.svg#angle-double-right' />
         </svg>
@@ -67,7 +90,7 @@
       <strong on:click={toggleShowChildNodes}>{dialogNode.character}</strong>:
       <span  on:click={toggleShowChildNodes} class="italic">"{t(dialogNode.text)}"</span>
 
-      <svg on:click={toggleShowSettings}>
+      <svg on:click={toggleShowSettingsAndChildNodes}>
         <use href='assets/sprite_icons.svg#edit' />
       </svg>
 
