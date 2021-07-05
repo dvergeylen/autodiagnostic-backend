@@ -89,7 +89,7 @@
 
   {#if Object.keys($scene.dialogNodes).length > 0}
 
-    <a id="downloadLink" on:click={downloadFile}>Exporter Scénario</a>
+    <button id="downloadlink" on:click={downloadFile}>Exporter Scénario</button>
     <h3>Partie {$scene.metadata.part}: Chapitre {$scene.metadata.chapter}</h3>
 
     <h4>Noeud Racine:</h4>
@@ -147,5 +147,9 @@
     main {
       max-width: none;
     }
+  }
+
+  #downloadlink {
+    cursor: pointer;
   }
 </style>
