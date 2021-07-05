@@ -10,7 +10,7 @@
   export let parentNodeId: string = '1';
   let showChildNodes: boolean = false;
   let multipleIncomingNodes: boolean = false;
-  let readonly: boolean = false;
+  let terminalNode: boolean = false;
   let showSettings: boolean = false;
   let showNewDialogNode: boolean = false;
 
@@ -70,13 +70,13 @@
   }
 
   $: multipleIncomingNodes = (dialogNode?.incomingNodes?.length > 1 ) || false;
-  $: readonly = dialogNode?.incomingNodes?.length > 1;
+  $: terminalNode = dialogNode?.nextNodes?.length === 0;
 </script>
 
 <li id="{normalizedId}">
   <div class="dialog-node" class:is-player={dialogNode.character === "Player"}>
     <p>
-      {#if !readonly}
+      {#if !terminalNode}
         <svg on:click={toggleShowChildNodes} class:is-hidden={showChildNodes}>
           <use href='assets/sprite_icons.svg#angle-double-right' />
         </svg>
