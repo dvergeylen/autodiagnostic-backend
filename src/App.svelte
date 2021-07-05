@@ -51,8 +51,18 @@
   }
 
   function downloadFile(): void {
+    // Prepare json content
+    const output = {
+      metadata: {...$scene.metadata},
+      dialogNodes: {...Object.fromEntries(Object.entries($scene.dialogNodes).map(([key, d]) => {
+        delete d.incomingNodes;
+        return [key, d];
+      }))},
+    };
+
+
     const link = document.createElement('a');
-    const blob = new Blob([JSON.stringify($scene, null, 2)], {type : 'application/json'});
+    const blob = new Blob([JSON.stringify(output, null, 2)], {type : 'application/json'});
     const url = URL.createObjectURL(blob);
     link.href = url;
     link.download = filename;
