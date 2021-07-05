@@ -40,9 +40,13 @@
       showNewDialogNode = false;
     }
   }
-  function toggleShowNewDialogNode() {
+  function toggleShowNewDialogNode(event) {
     showNewDialogNode = !showNewDialogNode;
-    showChildNodes = showNewDialogNode;
+
+    // We check for false explicitely, as falsy is acceptable
+    if (!(event?.detail?.toggleChildNodes === false)) {
+      showChildNodes = showNewDialogNode;
+    }
 
     // Hide settings if displaying new DialogNode
     if (showNewDialogNode) {
@@ -126,7 +130,7 @@
     {/if}
 
     {#if showNewDialogNode}
-      <NewDialogNode parentDialogNode={dialogNode} on:updateNodeLists/>
+      <NewDialogNode parentDialogNode={dialogNode} on:updateNodeLists on:toggleShowNewDialogNode={toggleShowNewDialogNode}/>
     {/if}
   </div>
 

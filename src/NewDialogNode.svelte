@@ -33,6 +33,7 @@
       parentDialogNode.nextNodes = [...parentDialogNode.nextNodes, selectedDialogNodeId];
     }
     dispatch('updateNodeLists', {});
+    dispatch('toggleShowNewDialogNode', {toggleChildNodes: false});
   }
   function addNewDialogNode() {
     // Computing first available ID
@@ -47,6 +48,7 @@
     $scene.dialogNodes[String(newId)] = newDialogNode;
     parentDialogNode.nextNodes = [...parentDialogNode.nextNodes, String(newId)];
     dispatch('updateNodeLists', {});
+    dispatch('toggleShowNewDialogNode', {toggleChildNodes: false});
   }
 </script>
 
