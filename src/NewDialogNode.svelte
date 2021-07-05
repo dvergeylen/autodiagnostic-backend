@@ -38,10 +38,7 @@
   function addNewDialogNode() {
     // Computing first available ID
     const keys: Array<string> = Object.keys($scene.dialogNodes);
-    let newId = Number(keys.reduce((max, i) => i > max ? i : max, '1')) + 1;
-    while(keys.includes(String(newId))) {
-      newId + 1;
-    }
+    let newId = keys.reduce((max, i) => Number(i) > max ? Number(i) : max, 1) + 1;
     newDialogNode.id = String(newId);
 
     // Updating parent nextNodes
