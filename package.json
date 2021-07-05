@@ -7,7 +7,7 @@
     "dev": "rollup -c -w",
     "start": "sirv public --no-clear",
     "check": "svelte-check --tsconfig ./tsconfig.json",
-    "deploy": "npm run build &&  ./node_modules/gh-pages/bin/gh-pages.js -d public/"
+    "deploy": "echo 'autodiagnostic.place2be.io' > ./public/CNAME && npm run build &&  ./node_modules/gh-pages/bin/gh-pages.js -d public/"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^17.0.0",
