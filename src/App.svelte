@@ -52,15 +52,19 @@
 
   function downloadFile(): void {
     // Prepare json content
+    const indexLookup: {[k: string]: string} = Object.keys($scene.dialogNodes).reduce((acc, oldIndex, newIndex) => ({...acc, [oldIndex]: String(newIndex + 1)}), {});
     const output = {
       metadata: {...$scene.metadata},
-      dialogNodes: {...Object.fromEntries(Object.entries($scene.dialogNodes).map(([key, d]) => {
-        delete d.incomingNodes;
-        return [key, d];
+      dialogNodes: {...Object.fromEntries(Object.entries($scene.dialogNodes).map(([key, d], newIndex) => {
+        let newNode = Object.assign({}, d);
+        delete newNode.incomingNodes;
+        newNode.nextNodes = newNode.nextNodes.map<string>((oldIndex) => indexLookup[oldIndex]);
+        newNode.id = String(newIndex + 1);
+        return [newIndex + 1, newNode];
       }))},
     };
 
-
+    // Transform JSON into downloadable output
     const link = document.createElement('a');
     const blob = new Blob([JSON.stringify(output, null, 2)], {type : 'application/json'});
     const url = URL.createObjectURL(blob);
