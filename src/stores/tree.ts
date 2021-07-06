@@ -18,8 +18,7 @@ export const nodeIncomingVertices: Readable<{ [nodeId: string]: Array<string> }>
 export const orphanDialogNodesIds: Readable<Array<string>> = derived(
   [scene, nodeIncomingVertices], // stores[0], stores[1]
   $stores => Object.keys($stores[0].dialogNodes).reduce((acc: string[], dialogNodeId) => (
-    $stores[1][dialogNodeId]?.length === 0
-      && dialogNodeId !== "1" ? [...acc, dialogNodeId] : acc
+    !$stores[1][dialogNodeId] && dialogNodeId !== "1" ? [...acc, dialogNodeId] : acc
   ), []),
 );
 
