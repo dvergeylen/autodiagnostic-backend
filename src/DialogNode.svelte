@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { tick } from 'svelte';
   import DialogNodeSettings from './DialogNodeSettings.svelte';
   import NewDialogNode from './NewDialogNode.svelte';
   import { scene } from './stores/scene';
@@ -8,7 +8,7 @@
   export let language: string;
   export let gender: string;
   export let dialogNode: DialogNode;
-  export let parentNodeId: string = '1';
+  export let parentNodeId: string | null = null;
   export let renderMultiIncomingVerticesNodeChildren: boolean = false;
   let showChildNodes: boolean = false;
   let multipleIncomingNodes: boolean = false;
@@ -56,13 +56,18 @@
     $scene.dialogNodes[parentNodeId].nextNodes = $scene.dialogNodes[parentNodeId].nextNodes.filter((id) => id !== dialogNode.id);
   }
 
-  function removeNode() {
-    // Remove references
-    $nodeIncomingVertices[dialogNode.id].forEach((dialogNodeId) => {
-      $scene.dialogNodes[dialogNodeId].nextNodes = $scene.dialogNodes[dialogNodeId].nextNodes.filter((id) => id !== dialogNode.id);
-    });
+  async function removeNode() {
+    const id = dialogNode.id;
+    delete $scene.dialogNodes[id];
+    $scene = $scene; // force update (will trigger orphan list derived store and alikes as well)
 
-    delete $scene.dialogNodes[dialogNode.id];
+    // Remove references
+    if ($nodeIncomingVertices[id]) {
+      $nodeIncomingVertices[id].forEach((dialogNodeId) => {
+        $scene.dialogNodes[dialogNodeId].nextNodes = $scene.dialogNodes[dialogNodeId].nextNodes.filter((id) => id !== dialogNodeId);
+      });
+      await tick(); // at this stage, node becomes orphan
+    }
   }
 
   $: multipleIncomingNodes = ($nodeIncomingVertices[dialogNode?.id]?.length > 1 ) || false;
@@ -111,7 +116,7 @@
           </svg>
         </span>
       {/if}
-      {#if $nodeIncomingVertices[dialogNode.id]?.length > 0}
+      {#if parentNodeId && $nodeIncomingVertices[dialogNode.id]?.length > 0}
         <span title="Supprimer la filiation (le noeud ne sera pas supprimé, seul son lien avec son noeud parent)">
           <svg on:click={removeAffiliation} class="is-float-right">
             <use href='assets/sprite_icons.svg#times-circle-regular' />
@@ -139,8 +144,10 @@
       $nodeIncomingVertices[dialogNode.id]?.length <= 1}
     <ul class:is-hidden={!showChildNodes}>
       {#each dialogNode.nextNodes as childNodeId, i (i)}
-        <svelte:self {gender} {language} parentNodeId={dialogNode.id}
-        bind:dialogNode={$scene.dialogNodes[childNodeId]}/>
+        {#if $scene.dialogNodes[childNodeId]}
+          <svelte:self {gender} {language} parentNodeId={dialogNode.id}
+          bind:dialogNode={$scene.dialogNodes[childNodeId]}/>
+        {/if}
       {/each}
     </ul>
   {/if}
