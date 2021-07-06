@@ -58,7 +58,7 @@
 
   function removeNode() {
     // Remove references
-    Object.keys($scene.dialogNodes).forEach((dialogNodeId) => {
+    $nodeIncomingVertices[dialogNode.id].forEach((dialogNodeId) => {
       $scene.dialogNodes[dialogNodeId].nextNodes = $scene.dialogNodes[dialogNodeId].nextNodes.filter((id) => id !== dialogNode.id);
     });
 
