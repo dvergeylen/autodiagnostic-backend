@@ -1,13 +1,15 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
+  import { onMount } from 'svelte';
   import DialogNodeSettings from './DialogNodeSettings.svelte';
   import NewDialogNode from './NewDialogNode.svelte';
   import { scene } from './stores/scene';
+  import { nodeIncomingVertices } from './stores/tree';
 
   export let language: string;
   export let gender: string;
   export let dialogNode: DialogNode;
   export let parentNodeId: string = '1';
+  export let renderMultiIncomingVerticesNodeChildren: boolean = false;
   let showChildNodes: boolean = false;
   let multipleIncomingNodes: boolean = false;
   let terminalNode: boolean = false;
@@ -17,10 +19,6 @@
   const t = (text: DialogNode["text"]): string => {
     return text?.[language]?.[gender] || text?.[language]?.m || text?.[language] || text.fr;
   }
-
-  const dispatch = createEventDispatcher();
-
-  const normalizedId: string = `${'0'.repeat(5-String(dialogNode.id).length)}${dialogNode.id}`;
 
   function toggleShowChildNodes() {
     showChildNodes = !showChildNodes;
@@ -56,7 +54,6 @@
 
   function removeAffiliation() {
     $scene.dialogNodes[parentNodeId].nextNodes = $scene.dialogNodes[parentNodeId].nextNodes.filter((id) => id !== dialogNode.id);
-    dispatch('updateNodeLists', {});
   }
 
   function removeNode() {
@@ -66,14 +63,12 @@
     });
 
     delete $scene.dialogNodes[dialogNode.id];
-    dispatch('updateNodeLists', {});
   }
 
-  $: multipleIncomingNodes = (dialogNode?.incomingNodes?.length > 1 ) || false;
+  $: multipleIncomingNodes = ($nodeIncomingVertices[dialogNode?.id]?.length > 1 ) || false;
   $: terminalNode = dialogNode?.nextNodes?.length === 0;
 </script>
-
-<li id="{normalizedId}">
+<li>
   <div class="dialog-node" class:is-player={dialogNode.character === "Player"}>
     <p>
       {#if !terminalNode}
@@ -99,8 +94,8 @@
       </svg>
 
       <span class:is-hidden={!multipleIncomingNodes} class="is-primary"
-        title="{dialogNode.incomingNodes?.length || 0} répliques mène(nt) à ce noeud">
-        ⇶ {dialogNode.incomingNodes?.length || 0} - 
+        title="{$nodeIncomingVertices[dialogNode.id]?.length || 0} répliques mène(nt) à ce noeud">
+        ⇶ {$nodeIncomingVertices[dialogNode.id]?.length || 0} - 
       </span>
 
       <span title="Ajouter une sous-réplique">
@@ -116,7 +111,7 @@
           </svg>
         </span>
       {/if}
-      {#if dialogNode.incomingNodes.length > 0}
+      {#if $nodeIncomingVertices[dialogNode.id]?.length > 0}
         <span title="Supprimer la filiation (le noeud ne sera pas supprimé, seul son lien avec son noeud parent)">
           <svg on:click={removeAffiliation} class="is-float-right">
             <use href='assets/sprite_icons.svg#times-circle-regular' />
@@ -130,17 +125,25 @@
     {/if}
 
     {#if showNewDialogNode}
-      <NewDialogNode parentDialogNode={dialogNode} on:updateNodeLists on:toggleShowNewDialogNode={toggleShowNewDialogNode}/>
+      <NewDialogNode parentDialogNode={dialogNode} on:toggleShowNewDialogNode={toggleShowNewDialogNode}/>
     {/if}
   </div>
 
-  <ul class:is-hidden={!showChildNodes}>
-    {#each dialogNode.nextNodes as childNodeId, i (i)}
-      <svelte:self {gender} {language} parentNodeId={dialogNode.id}
-      bind:dialogNode={$scene.dialogNodes[childNodeId]}
-      on:updateNodeLists/>
-    {/each}
-  </ul>
+  <!-- Don't render multi-incoming nodes to avoid node tree bloating.
+   This property is always given at root level and never propagated to avoid
+   child node tree bloating.
+   Nodes having only (max) 1 child are rendered ok
+   -->
+  {#if renderMultiIncomingVerticesNodeChildren ||
+      !$nodeIncomingVertices[dialogNode.id] ||
+      $nodeIncomingVertices[dialogNode.id]?.length <= 1}
+    <ul class:is-hidden={!showChildNodes}>
+      {#each dialogNode.nextNodes as childNodeId, i (i)}
+        <svelte:self {gender} {language} parentNodeId={dialogNode.id}
+        bind:dialogNode={$scene.dialogNodes[childNodeId]}/>
+      {/each}
+    </ul>
+  {/if}
 </li>
 
 <style>

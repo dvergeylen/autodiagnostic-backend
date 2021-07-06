@@ -32,7 +32,6 @@
     if (!parentDialogNode.nextNodes.includes(selectedDialogNodeId)) {
       parentDialogNode.nextNodes = [...parentDialogNode.nextNodes, selectedDialogNodeId];
     }
-    dispatch('updateNodeLists', {});
     dispatch('toggleShowNewDialogNode', {toggleChildNodes: false});
   }
   function addNewDialogNode() {
@@ -44,7 +43,6 @@
     // Updating parent nextNodes
     $scene.dialogNodes[String(newId)] = newDialogNode;
     parentDialogNode.nextNodes = [...parentDialogNode.nextNodes, String(newId)];
-    dispatch('updateNodeLists', {});
     dispatch('toggleShowNewDialogNode', {toggleChildNodes: false});
   }
 </script>
