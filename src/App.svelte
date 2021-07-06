@@ -115,9 +115,4 @@
   #downloadlink {
     cursor: pointer;
   }
-
-  /* Commons */
-  .is-hidden {
-    display: none;
-  }
 </style>
