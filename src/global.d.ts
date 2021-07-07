@@ -15,7 +15,7 @@ interface DialogNode {
     en?: string,
   },
   nextNodes: Array<string>,
-  character: "Player" | "NPC1",
+  character: "Player" | "NPC1" | "Narrator",
   attribution?: {
     leader?: number,
     bricoleur?: number,

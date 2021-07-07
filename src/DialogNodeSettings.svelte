@@ -22,6 +22,7 @@
       <select bind:value={dialogNode.character}>
         <option value="Player">Joueur</option>
         <option value="NPC1">NPC1</option>
+        <option value="Narrator">Narrateur</option>
       </select>
   </div>
 
