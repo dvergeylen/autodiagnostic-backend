@@ -30,10 +30,11 @@
 
   function addExistingDialogNode() {
     if (!parentDialogNode.nextNodes.includes(selectedDialogNodeId)) {
-      parentDialogNode.nextNodes = [...parentDialogNode.nextNodes, selectedDialogNodeId];
+      $scene.dialogNodes[parentDialogNode.id].nextNodes = [...$scene.dialogNodes[parentDialogNode.id].nextNodes, selectedDialogNodeId];
     }
     dispatch('toggleShowNewDialogNode', {toggleChildNodes: false});
   }
+
   function addNewDialogNode() {
     // Computing first available ID
     const keys: Array<string> = Object.keys($scene.dialogNodes);
@@ -42,7 +43,7 @@
 
     // Updating parent nextNodes
     $scene.dialogNodes[String(newId)] = newDialogNode;
-    parentDialogNode.nextNodes = [...parentDialogNode.nextNodes, String(newId)];
+    $scene.dialogNodes[parentDialogNode.id].nextNodes = [...$scene.dialogNodes[parentDialogNode.id].nextNodes, String(newId)];
     dispatch('toggleShowNewDialogNode', {toggleChildNodes: false});
   }
 </script>
